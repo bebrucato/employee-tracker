@@ -1,13 +1,27 @@
 const sequelize = require('./config/connection');
 const consoleTable = require('console.table')
 
-const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const cTable = require('console.table');
+console.table([
+  {
+    name: 'foo',
+    age: 10
+  }, {
+    name: 'bar',
+    age: 20
+  }
+]);
 
-// turn on connection to db and server
-sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => console.log('Now listening'));
-});
+const table = cTable.getTable([
+  {
+    name: 'foo',
+    age: 10
+  }, {
+    name: 'bar',
+    age: 20
+  }
+]);
+
+console.log(table);
+
