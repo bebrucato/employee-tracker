@@ -23,7 +23,7 @@ function searching() {
     name:"initChoice",
     type:"list",
     message:"Please select how you would like to proceed.",
-    choices: ["View Departments", "View Employees", "View Employees By Department", "View Employees By Manager", "Add Employee", "Remove Employee", "Update Employee"]
+    choices: ["View Departments", "View Employees", "View Employees By Department", "View Employees By Manager", "Add Employee", "Remove Employee", "Update Employee", "End Session"]
   })
   .then(function(answer) {
     switch (answer.initChoice) {
@@ -54,14 +54,32 @@ function searching() {
         case "Update Employee":
           updateEmployee();
           break;
+
+        case "End Session":
+        endSession();
+        break;
     }
   })
 };
 
 function viewDepartments() {
-  sequelize.query("SELECT id, name FROM department", function(err,res) {
+  sequelize.query("SELECT id, name FROM department ", function(err,res) {
     if(err) throw err;
-    searching();
+    console.table('Departments', res);
+    searching()
+  })
+};
+
+function viewEmployees() {
+  let query = "SELECT employee.id, employee.first_name, employee.last_name, department.name, role.salary, role.title, manager.id "
+query +="FROM employee ";
+query += "INNER JOIN department ON employee.dept = department.name "; 
+query += "INNER JOIN role ON department.id = role.department_id ";
+query += "LEFT JOIN manager ON employee.manager_id = manager.id ";
+
+sequelize.query(query, function (err, res) {
+  console.table('Employees', res);
+  searching();
   })
 };
 
