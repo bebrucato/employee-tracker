@@ -15,6 +15,8 @@ const sequelize = new Sequelize(
   }
 );
 
+searching();
+
 function searching() {
   inquirer
   .prompt({
@@ -23,6 +25,44 @@ function searching() {
     message:"Please select how you would like to proceed.",
     choices: ["View Departments", "View Employees", "View Employees By Department", "View Employees By Manager", "Add Employee", "Remove Employee", "Update Employee"]
   })
-}
+  .then(function(answer) {
+    switch (answer.initChoice) {
+      case "View Departments":;
+        viewDepartments();
+        break;
+
+        case "View Employees":
+          viewEmployees();
+          break;
+        
+        case "View Employees By Department":
+          employeesByDept();
+          break;
+
+        case "View Employees By Manager":
+          byManager();
+          break;
+
+        case "Add Employee":
+          addEmployee();
+          break;
+
+        case "Remove Employee":
+        removeEmployee();
+        break;
+
+        case "Update Employee":
+          updateEmployee();
+          break;
+    }
+  })
+};
+
+function viewDepartments() {
+  sequelize.query("SELECT id, name FROM department", function(err,res) {
+    if(err) throw err;
+    searching();
+  })
+};
 
 module.exports = sequelize;
