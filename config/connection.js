@@ -78,6 +78,7 @@ query += "INNER JOIN role ON department.id = role.department_id ";
 query += "LEFT JOIN manager ON employee.manager_id = manager.id ";
 
 sequelize.query(query, function (err, res) {
+  if(err) throw err;
   console.table('Employees', res);
   searching();
   })
