@@ -63,7 +63,7 @@ function searching() {
 };
 
 function viewDepartments() {
-  sequelize.query("SELECT id, name FROM department ", function(err,res) {
+  sequelize.query("SELECT id, dept_name FROM department ", function(err,res) {
     if(err) throw err;
     console.table('Departments', res);
     searching()
@@ -71,9 +71,9 @@ function viewDepartments() {
 };
 
 function viewEmployees() {
-  let query = "SELECT employee.id, employee.first_name, employee.last_name, department.name, role.salary, role.title, manager.id "
+  let query = "SELECT employee.id, employee.first_name, employee.last_name, department.dept_name, role.salary, role.title, manager.id "
 query +="FROM employee ";
-query += "INNER JOIN department ON employee.dept = department.name "; 
+query += "INNER JOIN department ON employee.dept = department.dept_name "; 
 query += "INNER JOIN role ON department.id = role.department_id ";
 query += "LEFT JOIN manager ON employee.manager_id = manager.id ";
 
@@ -85,15 +85,32 @@ sequelize.query(query, function (err, res) {
 };
 
 function employeesByDept() {
-  let query = "SELECT department.name, employee.id, employee.first_name, employee.last_name ";
-  query += "FROM department ";
-  query += "INNER JOIN employee ON employee.dept = department.name ";
-  query += "ORDER BY department.name ";
+  let query = "SELECT department.dept_name, employee.id, employee.first_name, employee.last_name ";
+query += "FROM department ";
+query += "INNER JOIN employee ON employee.dept = department.dept_name ";
+query += "ORDER BY department.dept_name ";
   
+sequelize.query(query, function (err, res) {
+  if(err) throw err;
+  console.table('Employees By Department', res);
+  searching();
+  })
+};
+
+function byManager() {
+  console.log("View Employees By Manager");
+  let query = "SELECT manager.id, manager.manager_name, employee.first_name, employee.last_name ";
+  query += "FROM manager ";
+  query += "INNER JOIN employee ON manager.id = employee.manager_id ";
+  query += "ORDER BY manager.manager_name ";
+
   sequelize.query(query, function (err, res) {
-    console.table('Employees By Department', res);
+    if(err) throw err;
+    console.table('Employees By Manager', res);
     searching();
     })
-} 
+};
+
+
 
 module.exports = sequelize;
