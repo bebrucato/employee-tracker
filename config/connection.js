@@ -84,4 +84,16 @@ sequelize.query(query, function (err, res) {
   })
 };
 
+function employeesByDept() {
+  let query = "SELECT department.name, employee.id, employee.first_name, employee.last_name ";
+  query += "FROM department ";
+  query += "INNER JOIN employee ON employee.dept = department.name ";
+  query += "ORDER BY department.name ";
+  
+  sequelize.query(query, function (err, res) {
+    console.table('Employees By Department', res);
+    searching();
+    })
+} 
+
 module.exports = sequelize;
