@@ -61,6 +61,48 @@ function searching() {
   })
 };
 
+function viewDepartments(){
+  connection.query(
+    "SELECT department.dept_name FROM employee_tracker_db.department ",
+    function (err, res) {
+      if (err) throw err;
+
+      inquirer
+      .prompt([
+        {
+          name: "choice",
+          type: "list",
+          choices: function () {
+            var choiceArray = [];
+            for (var i = 0; i < res.length; i++) {
+              choiceArray.push(res[i].dept_name);
+            }
+            return choiceArray;
+          },
+          message: "Please select a department.",
+        },
+      ])
+      .then(function (answer) {
+        console.log(answer);
+        console.log(answer.choice);
+
+        connection.query(
+          `SELECT employee.first_name, employee.last_name, roles.salary, roles.title, department.dept_name as "Department Name"
+    FROM employee_tracker_db.employee
+    INNER JOIN role ON employee.roles_id = roles.id
+    INNER JOIN department ON roles.department_id = department.id
+    WHERE department.dept_name LIKE "${answer.choice}"`,
+          function (err, res) {
+            if (err) throw err;
+
+            console.table(res);
+            questions();
+          }
+        );
+      });
+  }
+);
+};
 
 
 
