@@ -1,15 +1,18 @@
-INSERT INTO department (dept_name)
-VALUES ('Administration'),
-       ('Therapy & HR'),
-       ('Debt Collection'),
-       ('Chiropractic & Firearms'),
-       ('Cafeteria & Catering'),
-       ('Credit & Lending');
+USE employee_tracker_db;
 
-INSERT INTO role (title, salary, department_id)
-VALUES ('Boss of Bosses', 1000000, 1),
-       ('Therapist', 75000, 2),
-       ('Collections Agent', 100000, 3),
-       ('Negotiator', 150000, 4),
-       ('Chef', 50000, 5),
-       ('Loan Broker', 200000, 6);
+INSERT INTO department (dept_name)
+VALUES ('History of Magic'),
+       ('Defence Against The Dark Arts'),
+       ('Astronomy'),
+       ('Potions');
+
+INSERT INTO employee (first_name, last_name, dept, salary, manager_id, roles_id)
+VALUES ('Rubeus','Hagrid', 'Potions', 100000, 1, 1),
+        ('Severus', 'Snape', 'Defence Against The Dark Arts', 80000, 2, 2),
+        ('Minerva', 'McGonagall', 'History of Magic', 200000, 3, 3),
+        ('Horace', 'Slughorn', 'Astronomy', 120000, 4, 4);
+
+SELECT * FROM employee;
+SELECT * FROM roles;
+SELECT * FROM department;
+SELECT * FROM manager; 

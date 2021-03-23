@@ -1,21 +1,26 @@
-const Sequelize = require('sequelize');
-require('dotenv').config();
 const inquirer = require('inquirer');
-const mySql = require('mysql');
-const consoleTable = require('console.table')
+const mysql = require('mysql');
+const consoleTable = require('console.table');
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: 'localhost',
-    dialect: 'mysql',
-    port: 3306,
+let connection = mysql.createConnection(
+{
+  host: "localhost",
+
+  port: 3306,
+
+  user: "root",
+
+  password: "KOOkoo@101",
+
+  database: "employee_tracker_db"
   }
 );
 
-searching();
+connection.connect(function(err) {
+  if (err) throw err;
+    console.log("connected as id " + connection.threadId + "\n");
+  searching();
+});
 
 function searching() {
   inquirer
@@ -63,7 +68,7 @@ function searching() {
 };
 
 function viewDepartments() {
-  sequelize.query("SELECT id, dept_name FROM department ", function(err,res) {
+  connection.query("SELECT id, dept_name FROM department ", function(err,res) {
     if(err) throw err;
     console.table('Departments', res);
     searching()
@@ -71,13 +76,13 @@ function viewDepartments() {
 };
 
 function viewEmployees() {
-  let query = "SELECT employee.id, employee.first_name, employee.last_name, department.dept_name, role.salary, role.title, manager.id "
+  let query = "SELECT employee.id, employee.first_name, employee.last_name, department.dept_name, roles.salary, roles.title, manager.id "
 query +="FROM employee ";
 query += "INNER JOIN department ON employee.dept = department.dept_name "; 
-query += "INNER JOIN role ON department.id = role.department_id ";
+query += "INNER JOIN roles ON department.id = roles.department_id ";
 query += "LEFT JOIN manager ON employee.manager_id = manager.id ";
 
-sequelize.query(query, function (err, res) {
+connection.query(query, function (err, res) {
   if(err) throw err;
   console.table('Employees', res);
   searching();
@@ -90,7 +95,7 @@ query += "FROM department ";
 query += "INNER JOIN employee ON employee.dept = department.dept_name ";
 query += "ORDER BY department.dept_name ";
   
-sequelize.query(query, function (err, res) {
+connection.query(query, function (err, res) {
   if(err) throw err;
   console.table('Employees By Department', res);
   searching();
@@ -104,13 +109,107 @@ function byManager() {
   query += "INNER JOIN employee ON manager.id = employee.manager_id ";
   query += "ORDER BY manager.manager_name ";
 
-  sequelize.query(query, function (err, res) {
+  connection.query(query, function (err, res) {
     if(err) throw err;
     console.table('Employees By Manager', res);
     searching();
     })
 };
 
+function addEmployee() {
+  inquirer
+  .prompt([      
+    {
+      name: "newEmployeeFN",
+      type: "input",
+      message: "Please enter the new employee's first name."
+    },
+    {
+      name: "newEmployeeLN",
+      type: "input",
+      message: "Please enter the new employee's last name."
+    },
+    {
+      name: "newEmployeeDept",
+      type: "list",
+      message: "Please enter the new employee's department.",
+      choices: ['Therapy & HR', 'Debt Collection', 'Chiropractic & Firearms', 'Cafeteria and Catering', 'Credit and Lending']
+    },
+    {
+      name: "newEmployeeSalary",
+      type: "input",
+      message: "Please enter the new employee's salary."
+    },
+    {
+      name: "newEmployeeManager",
+      type: "list",
+      message: "Please enter the new employee's manager.",
+      choices: ["Anthony Soprano", "Christopher Moltisanti", "Furio Giunta", "Nobody/Fuggedaboutit"],
+    },
+    {
+      name: "newEmployeeRole",
+      type: "list",
+      message: "Please enter the new employee's role.",
+      choices: ['Therapist', 'Collections Agent', 'Negotiator', 'Chef', 'Loan Broker']
+    }
+  ])
+
+  .then(function(answer) {
+    var newEmpsMgr = " "
+
+    if (answer.newEmployeeManager === "Anthony Soprano") {
+      newEmpsMgr = 1;
+    }
+ 
+    if (answer.newEmployeeManager === "Christopher Moltisanti") {
+      newEmpsMgr = 3;
+    }
+    
+    if (answer.newEmployeeManager === "Furio Giunta") {
+      newEmpsMgr = 6;
+    }
+    
+    if (answer.newEmployeeManager === "Nobody/Fuggedaboutit") {
+      newEmpsMgr = null;
+    }
+    
+    var newEmpsRole = " ";
+    
+    if (answer.newEmployeeRole === 'Therapist') {
+      newEmpsRole = 2
+    }
+    if (answer.newEmployeeRole === 'Collections Agent') {
+      newEmpsRole = 3
+    }
+    if (answer.newEmployeeRole === 'Negotiator') {
+      newEmpsRole = 4
+    }
+    if (answer.newEmployeeRole === 'Chef') {
+      newEmpsRole = 5
+    }
+    if (answer.newEmployeeRole === 'Loan Broker') {
+      newEmpsRole = 6
+    }
+
+    var query = connection.query(
+      "INSERT INTO employee SET ? ",
+      {
+        first_name: answer.newEmployeeFN,
+        last_name: answer.newEmployeeLN,
+        dept: answer.newEmployeeDept,
+        salary: answer.newEmployeeSalary,
+        roles_id: newEmpsRole,
+        manager_id: newEmpsMgr
+       },
+  
+      function (err, res) {
+        if (err) throw err;
+        console.log(res.affectedRows + " employee added!\n");
+        searching();
+      }
+    )
+  })
+};
 
 
-module.exports = sequelize;
+
