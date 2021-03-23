@@ -104,6 +104,22 @@ function viewDepartments(){
 );
 };
 
+function viewEmployees() {
+  connection.query(
+    `SELECT employee.first_name, employee.last_name, roles.salary, roles.title, department.dept_name as "Department Name"
+    FROM employee_tracker_db.employee
+    INNER JOIN role ON employee.role_id = role.id
+    INNER JOIN department ON role.department_id = department.id`,
+
+    function (err, res) {
+      if (err) throw err;
+
+      console.table(res);
+      questions();
+    }
+  );
+}
+
 
 
 
