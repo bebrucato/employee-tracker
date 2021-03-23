@@ -117,6 +117,92 @@ function viewAllRoles() {
   });
 }
 
+function createDepartment() {
+  inquirer
+    .prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "Please enter a department name.",
+      },
+    ])
+    .then(function (answer) {
+      connection.query(
+        "INSERT INTO department SET ?",
+        {
+          dept_name: answer.name,
+        },
+        function (err) {
+          if (err) throw err;
+          console.log(`You have created a department ${answer.name}.`)
+          searching();
+        }
+      );
+    });
+}
+
+function createRole() {
+  connection.query(
+    "SELECT department.dept_name, department.id FROM employee_tracker_db.department",
+    function (err, res) {
+      if (err) throw err;
+
+      inquirer
+        .prompt([
+          {
+            name: "choice",
+            type: "list",
+            choices: function () {
+              var choiceArray = [];
+              var choiceArrayID = [];
+              for (var i = 0; i < res.length; i++) {
+                choiceArray.push(res[i].dept_name);
+                choiceArrayID.push(res[i].id);
+              }
+              return choiceArray;
+            },
+            message: "Please select a department.",
+          },
+          {
+            name: "title",
+            type: "input",
+            message: "Please enter a name for the role.",
+          },
+          {
+            name: "salary",
+            type: "input",
+            message: "Please enter a salary.",
+          },
+        ])
+        .then(function (answer) {
+          var department_id = answer.choice;
+
+          for (var i = 0; i < res.length; i++) {
+            if (res[i].dept_name === answer.choice) {
+              department_id = res[i].id;
+              console.log(department_id);
+            }
+          }
+
+          connection.query(
+            "INSERT INTO roles SET ?",
+            {
+              title: answer.title,
+              salary: answer.salary,
+              department_id: department_id,
+            },
+            function (err) {
+              if (err) throw err;
+
+              console.log(`You have created ${answer.title} with salary of ${answer.salary} in ${department_id}.`)
+
+              searching();
+            }
+          );
+        });
+    }
+  );
+}
 
 
 
